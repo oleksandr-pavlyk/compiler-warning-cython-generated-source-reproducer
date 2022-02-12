@@ -1,23 +1,19 @@
+# cython: language_level=3
 # cython: linetrace=True
 
-from libc.math cimport sin, cos
-
-cpdef double sin_squared(double x):
-    return sin(x * x)
-
-cpdef double cos_squared(double x):
-    return cos(x * x)
-
-cdef class SyclAsynchronousError(Exception):
+cdef class MyError(Exception):
     """
-    A SyclAsynchronousError exception is raised when SYCL operation submission
+    An  exception is raised when operation submission
     or execution encounters an error.
     """
 
 cdef void default_async_error_handler(int err) nogil except *:
     with gil:
-        raise SyclAsynchronousError(err)
+        raise MyError(err)
 
-
-cpdef doit(int err):
-    default_async_error_handler(err)
+def handler(int err):
+    if (err % 2):
+        with nogil:
+            default_async_error_handler(err)
+    else:
+        print("All good")
